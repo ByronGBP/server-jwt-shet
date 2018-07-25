@@ -1,9 +1,9 @@
 const User = require('../models/user');
-const bcrypt = require('bcrypt');
+const utils = require('../helpers/utils');
 
 const me = (req, res, next) => {
   if (req.session.currentUser) {
-    res.json(req.session.currentUser);
+    res.json({token: req.session.currentUser});
   } else {
     res.status(404).json({ error: 'not-found' });
   }
@@ -23,9 +23,7 @@ const signup = (req, res, next) => {
         return res.status(422).send({ error: 'user-not-unique' });
       }
 
-      const salt = bcrypt.genSaltSync(10);
-      const hashPass = bcrypt.hashSync(password, salt);
-
+      const hashPass = utils.getHashPassword(password);
       const newUser = new User({
         username,
         password: hashPass
@@ -33,7 +31,10 @@ const signup = (req, res, next) => {
 
       newUser.save()
         .then(() => {
-          res.json({ token: tokenForUser(user) });
+          newUser.password = '';
+          const token = utils.getTokenFromUser(newUser);
+          req.session.currentUser = token;
+          res.json({ token });
         });
     })
     .catch(next);
@@ -48,7 +49,7 @@ const login = (req, res, next) => {
   const password = req.body.password;
 
   if (!username || !password) {
-    return res.status(422).json({ error: 'validation' });
+    return res.status(422).json({ error: 'missing-username-password' });
   }
 
   User.findOne({ username })
@@ -56,9 +57,12 @@ const login = (req, res, next) => {
       if (!user) {
         return res.status(404).json({ error: 'not-found' });
       }
-      if (bcrypt.compareSync(password, user.password)) {
-        req.session.currentUser = user;
-        return res.json(user);
+
+      if (utils.isSamePassword(password, user.password)) {
+        user.password = '';
+        const token = utils.getTokenFromUser(user);
+        req.session.currentUser = token;
+        return res.json({ token });
       } else {
         return res.status(404).json({ error: 'not-found' });
       }
@@ -66,9 +70,13 @@ const login = (req, res, next) => {
     .catch(next);
 };
 
-const logout = (req, res) => {
+const logout = (req, res, next) => {
+  if (!req.session.currentUser) {
+    return res.status(401).json({ error: 'unauthorized' });
+  }
+
   req.session.currentUser = null;
-  return res.status(204).send();
+  return res.status(204).json();
 };
 
 module.exports = {
