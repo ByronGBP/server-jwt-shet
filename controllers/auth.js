@@ -10,6 +10,10 @@ const me = (req, res, next) => {
 };
 
 const signup = (req, res, next) => {
+  if (req.session.currentUser) {
+    return res.status(401).json({ error: 'unauthorized' });
+  }
+
   const username = req.body.username;
   const password = req.body.password;
 
