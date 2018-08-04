@@ -9,6 +9,14 @@ const me = (req, res, next) => {
   }
 };
 
+const user = (req, res, next) => {
+  if (!req.session.currentUser) {
+    return res.status(401).json({ error: 'unauthorized' });
+  }
+
+  res.json({data: req.user});
+};
+
 const signup = (req, res, next) => {
   if (req.session.currentUser) {
     return res.status(401).json({ error: 'unauthorized' });
@@ -87,5 +95,6 @@ module.exports = {
   me,
   signup,
   login,
-  logout
+  logout,
+  user
 };
