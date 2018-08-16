@@ -14,7 +14,7 @@ const user = (req, res, next) => {
     return res.status(401).json({ error: 'unauthorized' });
   }
 
-  res.json({data: req.user});
+  res.json({ ...req.user });
 };
 
 const signup = (req, res, next) => {
