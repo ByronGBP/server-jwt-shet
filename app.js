@@ -8,6 +8,7 @@ const MongoStore = require('connect-mongo')(session);
 const cors = require('cors');
 
 const auth = require('./routes/auth');
+const api = require('./routes/api');
 
 const app = express();
 
@@ -41,6 +42,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use('/auth', auth);
+app.use('/api', api);
 
 app.use((req, res, next) => {
   res.status(404).json({ error: 'not-found' });
