@@ -12,6 +12,7 @@ const create = (name) => {
   return newUser.save()
     .then(() => {
       console.log('User created');
+      return newUser;
     })
     .catch(err => {
       throw new Error(err);
