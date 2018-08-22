@@ -20,3 +20,6 @@
 
 # Seed the db
 - `npm run seed`
+
+# Routes
+- WIP 👀
