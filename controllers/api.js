@@ -1,4 +1,5 @@
 const News = require('../models/news');
+const User = require('../models/user');
 
 const allNews = (req, res, next) => {
   if (!req.session.currentUser) {
@@ -23,7 +24,27 @@ const oneNews = (req, res, next) => {
       if (!news) {
         return res.status(404).json({ error: 'not-found' });
       }
-      return res.json({ news });
+      const idUser = news.owner;
+
+      User.findById(idUser)
+        .then((user) => {
+          if (!user) {
+            return res.status(404).json({ error: 'not-found' });
+          }
+
+          const { avatar, _id, content, title, date } = news;
+
+          const formatNews = {
+            avatar,
+            _id,
+            content,
+            title,
+            date,
+            owner: user.username
+          };
+
+          return res.json({ news: formatNews });
+        });
     })
     .catch(next);
 };
