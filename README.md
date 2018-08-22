@@ -2,7 +2,7 @@
 - Purpose:
   - Authentication with jwt
 - Secondary:
-  - CRUD with news (UD eventually)V
+  - CRUD with news (UD eventually)
 
 # Make it work
 - `.env` with
