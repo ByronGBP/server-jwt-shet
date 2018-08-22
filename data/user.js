@@ -1,9 +1,9 @@
 const User = require('../models/user');
 const utils = require('../helpers/utils');
 
-const create = (name) => {
+const create = (name, password) => {
   const username = name || 'Default';
-  const hashPassword = utils.getHashPassword(process.env.SECRET_PASSWORD);
+  const hashPassword = password ? utils.getHashPassword(password) : utils.getHashPassword(process.env.SECRET_PASSWORD);
   const newUser = new User({
     username,
     password: hashPassword

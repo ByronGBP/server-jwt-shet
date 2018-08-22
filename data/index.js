@@ -3,6 +3,9 @@ const mongoose = require('mongoose');
 const user = require('./user');
 const news = require('./news');
 
+const usersSeed = require('./seeds').users;
+const newsSeed = require('./seeds').news;
+
 const main = () => {
   mongoose.Promise = Promise;
   mongoose.connect(process.env.MONGODB_URI, {
@@ -14,10 +17,16 @@ const main = () => {
       return news.remove();
     })
     .then(() => {
-      return user.create();
+      const promises = usersSeed.map((elem) => {
+        return user.create(elem.username, elem.password);
+      });
+      return Promise.all(promises);
     })
-    .then((user) => {
-      return news.create(user._id);
+    .then((users) => {
+      const promises = newsSeed.map((elem, idx) => {
+        return news.create(users[idx]._id, elem.title, elem.content);
+      });
+      return Promise.all(promises);
     })
     .then(() => {
       mongoose.disconnect();
